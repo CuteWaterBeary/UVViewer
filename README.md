@@ -1,24 +1,24 @@
 # UV Viewer for Unity Editor
-UVViewerWindow는 유니티 에디터에서 메시의 UV를 확인할 수 있는 에디터 윈도우 확장 클래스입니다. 유니티 5.4 버전 이상이 필요합니다.
+UVViewerWindow is an editor window extension class that allows you to view the UV of a mesh in the Unity Editor. Requires Unity version 5.4 or later.
 
 ![](Screenshot.png)
 
-## 설치
-[릴리스 페이지](https://github.com/songkyoo/UVViewer/releases)에서 유니티 패키지를 다운로드 받아 임포트하거나 [Assets/Plugins](Assets/Plugins) 폴더를 프로젝트로 복사하면 메뉴바의 Window 항목에 UV Viewer가 추가됩니다. 해당 항목을 실행하면 에디터 윈도우가 생성됩니다.
+## Install
+After downloading and importing the Unity package from our [release page](https://github.com/songkyoo/UVViewer/releases) or copying the [Assets/Plugins] folder into your project, UV Viewer will be added to the Window item in the menu bar. Running that item will create an editor window.
 
-## 사용법
-### 메시 설정
-Mesh 항목이 Selected Object일 경우 메시 혹은 MeshFilter, SkinnedMeshRenderer 컴포넌트를 포함하는 게임 오브젝트를 선택하면 UV를 표시합니다.
+## Usage
+### Mesh Settings
+If the Mesh item is Selected Object, it will display UVs when a mesh or GameObject containing MeshFilter or SkinnedMeshRenderer components is selected.
 
-Mesh 항목을 Custom으로 설정하면 메시를 직접 설정할 수 있습니다. 오브젝트를 뷰 영역으로 드래그 앤 드롭해도 동일한 동작을 수행합니다. 드래그 가능한 오브젝트는 메시 혹은 MeshFilter, SkinnedMeshRenderer 컴포넌트를 포함하는 게임 오브젝트입니다.
+If the Mesh item is set to Custom, you can set the mesh yourself. Dragging and dropping objects into the view area performs the same behavior. Draggable objects are meshes or GameObjects that contain MeshFilter or SkinnedMeshRenderer components.
 
-### 텍스처 설정
-Mesh 항목이 Selected Object일 경우 선택한 게임 오브젝트가 MeshRenderer, SkinnedMeshRenderer 컴포넌트를 포함한다면 Texture 항목을 Materials로 설정했을 경우 렌더러에 포함된 머티리얼의 텍스처를 선택할 수 있습니다.
+### Setting the Texture
+If the Mesh item is Selected Object and the selected game object contains MeshRenderer and SkinnedMeshRenderer components, you can select the texture of the materials included in the renderer if the Texture item is set to Materials.
 
-Texture 항목을 Custom으로 설정하면 텍스처를 직접 설정할 수 있습니다. 텍스처를 뷰 영역으로 드래그 앤 드롭해도 동일한 동작을 수행합니다.
+If you set the Texture item to Custom, you can set your own texture. Dragging and dropping a texture into the view area performs the same behavior.
 
-### 에디터 스크립트에서 접근하기
-에디터 스크립트에서 생성한 메시 혹은 텍스처를 설정할 수 있습니다. 다음 코드는 윈도우가 표시되고 있다면 표시되고 있는 윈도우에 값을 설정하고 표시되는 윈도우가 없다면 새로운 윈도우를 생성하고 값을 설정합니다.
+### Accessing from the Editor Script
+You can set up the mesh or texture you created in the Editor Script. The following code sets the values in the window that is being displayed, if any, and creates a new window and sets the values if no window is being displayed.
 
 ```csharp
 using Macaron.UVViewer.Editor;
@@ -27,18 +27,18 @@ class EditorClass
 {
     void SetCustom(Mesh mesh, Texture texture)
     {
-        // 메시 설정.
+        // Mesh settings.
         UVViewerWindow.ShowWindow().SetCustomMesh(mesh);
 
-        // 텍스처 설정.
+        // Texture settings.
         UVViewerWindow.ShowWindow().SetCustomTexture(texture);
     }
 }
 ```
 
-`SetCustomMesh`, `SetCustomTexture` 메서드를 호출하면 Mesh, Texture 항목이 Custom으로 변경되고 호출한 값으로 Source가 설정됩니다. 각 메서드는 개별적으로 호출될 수 있습니다.
+Calling the `SetCustomMesh`, `SetCustomTexture` methods will change the Mesh, Texture items to Custom and set the Source to the value you called. Each method can be called individually.
 
-## 제한 사항
-1. 표시되는 UV와 텍스처는 원본에 대한 변경을 자동으로 반영하지 않습니다. 갱신이 필요할 경우 Mesh, Texture 항목의 Reload 버튼을 눌러 다시 로드해야합니다.
+## Limitations
+1. the displayed UVs and textures do not automatically reflect changes made to the Source. If they need to be updated, they must be reloaded by pressing the Reload button on the Mesh, Texture item.
 
-2. Geometry 셰이더가 지원되지 않는 경우 Line Thickness 항목을 사용할 수 없고, HiDPI 환경에서 뷰 영역이 저해상도로 표시됩니다.
+2. If the Geometry shader is not supported, the Line Thickness item is not available, and the view area is displayed in low resolution in HiDPI environments.

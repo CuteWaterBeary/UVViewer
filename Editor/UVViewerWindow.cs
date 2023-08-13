@@ -37,9 +37,9 @@ namespace Macaron.UVViewer.Editor
 
         [SerializeField] private MeshSettings _meshSettings;
         [SerializeField] private UnityEngine.Object _selectedObject;
-        [SerializeField] private Mesh _mesh; // 실행취소 시 뷰 메시를 재구성해야 하는지 확인하기 위해서 사용한다.
+        [SerializeField] private Mesh _mesh; // Used to determine if the view mesh needs to be reconstructed on undo.
         [SerializeField] private TextureSettings _textureSettings;
-        [SerializeField] private Texture2D _texture; // 실행취소 시 텍스처 사본을 다시 생성해야 하는지 확인하기 위해서 사용한다.
+        [SerializeField] private Texture2D _texture; // This is used to determine if a copy of the texture should be regenerated on undo.
         [SerializeField] private ViewSettings _viewSettings;
 
         private int _subMeshIndex;
@@ -161,7 +161,7 @@ namespace Macaron.UVViewer.Editor
 
         private void OnGUI()
         {
-            // OnEnable에서 position의 값이 확정되지 않기 때문에 여기서 처리한다.
+            // Since the value of position is not finalized in OnEnable, we handle it here.
             if (_viewHeight < 0.0f)
             {
                 float viewHeight = EditorPrefs.GetFloat(_viewHeightKey, -1.0f);
@@ -171,13 +171,13 @@ namespace Macaron.UVViewer.Editor
                 ResetView(new Vector2(position.width - 2.0f, _viewHeight));
             }
 
-            // 뷰 영역.
+            // View Area.
             Rect viewRect = DrawViewBackground();
 
             _viewMoved = false;
             ProcessViewInput(viewRect);
 
-            // 뷰 이동 시 OnGUI 재호출 횟수가 많기 때문에 나머지 부분을 그리지 않도록 한다.
+            // Avoid drawing the rest of the view due to the high number of OnGUI re-calls when moving the view.
             if (_viewMoved)
             {
                 GUIUtility.ExitGUI();
@@ -187,15 +187,15 @@ namespace Macaron.UVViewer.Editor
             DrawViewGrid(viewRect);
             DrawViewMesh(viewRect);
 
-            // 인스펙터 영역.
-            // 레이아웃의 기본 여백을 제거해서 스크롤 영역의 시작 위치를 맞춘다.
+            // Inspector area.
+            // Remove the layout's default margin to position the start of the scroll area.
             GUILayout.Space(-EditorGUIUtility.standardVerticalSpacing);
 
             using (var scrollView = new EditorGUILayout.ScrollViewScope(_scrollPosition))
             {
                 _scrollPosition = scrollView.scrollPosition;
 
-                // 상단 여백.
+                // Top margin.
                 GUILayout.Space(8.0f);
 
                 using (new EditorGUILayout.VerticalScope(new GUIStyle { padding = new RectOffset(14, 0, 0, 0) }))
@@ -211,7 +211,7 @@ namespace Macaron.UVViewer.Editor
                     DrawViewSettings();
                 }
 
-                // 하단 여백.
+                // Bottom margin.
                 EditorGUILayout.Space();
             }
         }
@@ -223,7 +223,7 @@ namespace Macaron.UVViewer.Editor
 
         private void OnSelectionChange()
         {
-            // _meshSettings이 생성되지 않은 상태에서 호출될 수 있기 때문에 null 검사가 필요하다.
+            // The null check is necessary because _meshSettings may be called without being created.
             if (_meshSettings == null || _meshSettings.SourceType != MeshSourceType.SelectedObject)
             {
                 return;
@@ -281,8 +281,7 @@ namespace Macaron.UVViewer.Editor
 
         private void OnFocus()
         {
-            // 플레이 모드에 진입할 때 선택된 오브젝트가 없는 상태로 OnFocus가 호출되기 때문에 해당 상황을 무시하지 않으면 아무 것도
-            // 선택되지 않은 상태가 된다.
+            // Because OnFocus is called with no objects selected when entering play mode, you'll end up with nothing selected unless you ignore that situation.
             if (!EditorApplication.isPlaying && EditorApplication.isPlayingOrWillChangePlaymode)
             {
                 return;
@@ -596,8 +595,8 @@ namespace Macaron.UVViewer.Editor
                 {
                     _viewResizing = false;
 
-                    // 드래그가 아닌 클릭 시의 처리.
-                    // 뷰의 크기를 최대화하거나 이전 크기로 되돌린다.
+                    // Behavior when clicking rather than dragging.
+                    // Maximize the size of the view or return it to its previous size.
                     if (_viewResizingMouseMovement == Vector2.zero)
                     {
                         _viewHeight = ClampViewHeight(_viewHeight == MaxViewHeight ? _lastViewHeight : position.height);
@@ -797,7 +796,7 @@ namespace Macaron.UVViewer.Editor
 
             if (_viewDrag && evt.delta != Vector2.zero)
             {
-                // 컨트롤 키(맥에서는 Cmd)가 눌려있을 경우 상하 이동을 확대/축소로 처리한다.
+                // When the control key (Cmd on Mac) is pressed, up and down pans are treated as zooming.
                 if (!EditorGUI.actionKey)
                 {
                     Vector2Double delta = (Vector2Double)evt.delta / _viewScale * 0.5;
@@ -836,7 +835,7 @@ namespace Macaron.UVViewer.Editor
             double oldViewScale = _viewScale;
             double newViewScale = Math.Min(Math.Max(_minViewScale, oldViewScale * zoomFactor), _maxViewScale);
 
-            // 커서 위치를 기준으로 확대/축소.
+            // Zoom based on cursor position.
             Vector2Double cursorPos = viewRect.center - evt.mousePosition;
             Vector2Double oldCursorPivot = cursorPos / oldViewScale;
             Vector2Double newCursorPivot = cursorPos / newViewScale;
@@ -1021,8 +1020,7 @@ namespace Macaron.UVViewer.Editor
                     return (byte)Math.Round(255.0 * a);
                 };
 
-                // 확대율에 따른 그룹의 투명도. 각 수치는 적절한 값을 수동으로 입력한 것으로 디스플레이 환경에 따라 적절하게 표시되지
-                // 않을 수 있음.
+                // The transparency of the group as a function of magnification. Each number is a manually entered value that may not display properly depending on your display environment.
                 byte alpha0 = getAlpha(20.0, 40.0);
                 byte alpha1 = getAlpha(40.0, 80.0);
                 byte alpha2 = getAlpha(200.0, 400.0);
@@ -1465,7 +1463,7 @@ namespace Macaron.UVViewer.Editor
                     break;
                 }
 
-                // 보간 방법.
+                // Interpolation method.
                 int oldFilterMode = _textureSettings.FilterMode;
                 int newFilterMode = EditorGUILayout.IntPopup(
                     "Filter Mode",
@@ -1481,7 +1479,7 @@ namespace Macaron.UVViewer.Editor
                     _textureCopy.filterMode = (FilterMode)newFilterMode;
                 }
 
-                // 반복 여부.
+                // Repeat or not.
                 bool oldRepeating = _textureSettings.Repeating;
                 bool newRepeating = EditorGUILayout.Toggle("Repeating", oldRepeating);
 
@@ -1491,7 +1489,7 @@ namespace Macaron.UVViewer.Editor
                     _textureSettings.Repeating = newRepeating;
                 }
 
-                // 색.
+                // Colors.
                 Color oldTextureColor = _textureSettings.Color;
                 Color newTextureColor = EditorGUILayout.ColorField("Color", oldTextureColor);
 
@@ -1501,7 +1499,7 @@ namespace Macaron.UVViewer.Editor
                     _textureSettings.Color = newTextureColor;
                 }
 
-                // 채널.
+                // Channels.
                 DrawTextureChannelSelector();
             }
         }

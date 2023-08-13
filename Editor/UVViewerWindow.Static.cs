@@ -21,7 +21,7 @@ namespace Macaron.UVViewer.Editor
         private const float _minViewHeight = 100.0f;
         private const double _minViewScale = 1.0;
         private const double _maxViewScale = 10000000.0;
-        private const double _zoomIntensity = 0.2 / 3.0; // 윈도우 기본 휠 값은 3.
+        private const double _zoomIntensity = 0.2 / 3.0; // The window default wheel value is 3.
         private static readonly Vector2Double _defaultViewPivot = new Vector2Double(0.5, 0.5);
 
         // ViewGridGroup0: 0.0
@@ -96,7 +96,7 @@ namespace Macaron.UVViewer.Editor
             new GridTextInfo(0.9f, 0.0f, "0.9")
         };
 
-        [MenuItem("Window/UV Viewer", false, 2050)]
+        [MenuItem("Mesh+Bones/UV+Reduce/Korean UV Viewer", false, 2050)]
         public static UVViewerWindow ShowWindow()
         {
             return (UVViewerWindow)EditorWindow.GetWindow(typeof(UVViewerWindow));
@@ -211,7 +211,7 @@ namespace Macaron.UVViewer.Editor
 
             var uvVertices = uv.Select(point => (Vector3)point).ToArray();
 
-            // 라인 메시.
+            // Line Mesh.
             lineMesh.subMeshCount = subMeshCount;
             lineMesh.vertices = uvVertices;
 
@@ -221,7 +221,7 @@ namespace Macaron.UVViewer.Editor
                 lineMesh.SetIndices(segmentIndices, MeshTopology.Lines, i, false);
             }
 
-            // 버텍스 메시.
+            // Vertex mesh.
             vertexMesh.subMeshCount = subMeshCount;
             vertexMesh.vertices = uvVertices;
             vertexMesh.colors32 = colors;
@@ -249,7 +249,7 @@ namespace Macaron.UVViewer.Editor
 
             var uvVertices = uv.Select(point => (Vector3)point).ToArray();
 
-            // 라인 메시.
+            // Line Mesh.
             lineMesh.subMeshCount = subMeshCount;
             lineMesh.vertices = uvVertices;
 
@@ -259,10 +259,10 @@ namespace Macaron.UVViewer.Editor
                 lineMesh.SetIndices(segmentIndices, MeshTopology.Lines, i, false);
             }
 
-            // 버텍스 메시.
+            // Vertex mesh.
             vertexMesh.subMeshCount = subMeshCount;
 
-            // 버텍스.
+            // Vertex.
             var vertexVertices = new Vector3[uvVertices.Length * 4];
 
             for (int i = 0; i < uvVertices.Length; ++i)
@@ -277,7 +277,7 @@ namespace Macaron.UVViewer.Editor
 
             vertexMesh.vertices = vertexVertices;
 
-            // 노멀.
+            // Normal.
             var baseNormals = new[]
             {
                 new Vector3(-1.0f, 1.0f).normalized,
@@ -297,10 +297,10 @@ namespace Macaron.UVViewer.Editor
 
             vertexMesh.normals = vertexNormals;
 
-            // 컬러.
+            // Color.
             vertexMesh.colors32 = colors;
 
-            // 인덱스.
+            // Index.
             var baseIndices = new[] { 0, 1, 2, 2, 1, 3 };
 
             for (int i = 0; i < subMeshCount; ++i)
