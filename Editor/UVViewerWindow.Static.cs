@@ -96,7 +96,7 @@ namespace Macaron.UVViewer.Editor
             new GridTextInfo(0.9f, 0.0f, "0.9")
         };
 
-        [MenuItem("Mesh+Bones/UV+Reduce/Korean UV Viewer", false, 2050)]
+        [MenuItem("Mesh+Bones/UV+Reduce/UV Viewer")]
         public static UVViewerWindow ShowWindow()
         {
             return (UVViewerWindow)EditorWindow.GetWindow(typeof(UVViewerWindow));
